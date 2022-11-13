@@ -5,12 +5,14 @@ import {
   UseGuards,
   Request,
   HttpCode,
+  Get,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthUserDto } from './dto/auth-user.dto';
 import { LocalGuard } from '../auth/guards/local.guard';
 import { AuthService } from '../auth/auth.service';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
 @Controller('auth')
 export class UserController {
@@ -30,6 +32,13 @@ export class UserController {
   @Post('login')
   @HttpCode(200)
   async login(@Request() req) {
-    return { token: this.authService.login(req.user) };
+    const token = this.authService.login(req.user);
+    return new AuthUserDto(req.user.username, token);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('profile')
+  async getProfile(@Request() req) {
+    return req.user;
   }
 }
