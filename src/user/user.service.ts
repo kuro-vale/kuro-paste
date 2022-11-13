@@ -18,4 +18,8 @@ export class UserService {
       throw new HttpException('Username already exist', HttpStatus.BAD_REQUEST);
     }
   }
+
+  async findOne(username: string): Promise<User | undefined> {
+    return await this.userModel.findOne({ username: username }).exec();
+  }
 }
