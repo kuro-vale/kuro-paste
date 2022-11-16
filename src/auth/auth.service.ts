@@ -19,6 +19,11 @@ export class AuthService {
     return null;
   }
 
+  async verifyActive(username: string): Promise<boolean> {
+    const user = await this.userService.findOne(username);
+    return !!user;
+  }
+
   login(user: any) {
     const payload = { username: user.username, sub: user._id };
     return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
