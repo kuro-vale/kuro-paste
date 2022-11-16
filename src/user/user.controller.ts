@@ -6,6 +6,7 @@ import {
   Request,
   HttpCode,
   Get,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -40,5 +41,12 @@ export class UserController {
   @Get('profile')
   async getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete()
+  @HttpCode(204)
+  async deleteUser(@Request() req) {
+    await this.userService.delete(req.user.username);
   }
 }

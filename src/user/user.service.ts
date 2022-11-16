@@ -22,4 +22,8 @@ export class UserService {
   async findOne(username: string): Promise<User | undefined> {
     return await this.userModel.findOne({ username: username }).exec();
   }
+
+  async delete(username: string) {
+    await this.userModel.deleteOne({ username: username }).exec();
+  }
 }
