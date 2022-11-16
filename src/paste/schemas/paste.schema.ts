@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../user/schemas/user.schema';
+import { HydratedDocument } from 'mongoose';
+
+export type PasteDocument = HydratedDocument<Paste>;
 
 @Schema()
 export class Paste {
