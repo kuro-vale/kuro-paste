@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
   Post,
+  Put,
   Request,
   UploadedFile,
   UseGuards,
@@ -31,8 +33,7 @@ export class PasteController {
   @Post('compose')
   async compose(@Request() req, @Body() createPasteDto: CreatePasteDto) {
     const paste = await this.pasteService.create(createPasteDto, req.user.id);
-    const username = (await this.userService.findById(paste.user)).username;
-    return pasteAssembler(paste, username);
+    return pasteAssembler(paste, req.user.username);
   }
 
   @UseGuards(JwtGuard)
@@ -58,8 +59,7 @@ export class PasteController {
       body: file.buffer.toString(),
     };
     const paste = await this.pasteService.create(createPasteDto, req.user.id);
-    const username = (await this.userService.findById(paste.user)).username;
-    return pasteAssembler(paste, username);
+    return pasteAssembler(paste, req.user.username);
   }
 
   @Get(':id')
@@ -67,5 +67,23 @@ export class PasteController {
     const paste = await this.pasteService.findOne(id);
     const username = (await this.userService.findById(paste.user)).username;
     return pasteAssembler(paste, username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Put(':id')
+  async edit(
+    @Param('id') id: string,
+    @Body() createPasteDto: CreatePasteDto,
+    @Request() req,
+  ) {
+    const paste = await this.pasteService.findOne(id);
+    if (req.user.id != paste.user) {
+      throw new ForbiddenException();
+    }
+    paste.filename = createPasteDto.filename;
+    paste.extension = createPasteDto.extension;
+    paste.body = createPasteDto.body;
+    paste.save();
+    return pasteAssembler(paste, req.user.username);
   }
 }
