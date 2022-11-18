@@ -13,4 +13,8 @@ export class PasteService {
   async create(createPasteDto: CreatePasteDto, userId: string): Promise<any> {
     return await this.pasteModel.create({ user: userId, ...createPasteDto });
   }
+
+  async findOne(id: string): Promise<any> {
+    return await this.pasteModel.findById(id).exec();
+  }
 }

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
   Post,
   Request,
@@ -56,6 +58,13 @@ export class PasteController {
       body: file.buffer.toString(),
     };
     const paste = await this.pasteService.create(createPasteDto, req.user.id);
+    const username = (await this.userService.findById(paste.user)).username;
+    return pasteAssembler(paste, username);
+  }
+
+  @Get(':id')
+  async getOne(@Param('id') id: string) {
+    const paste = await this.pasteService.findOne(id);
     const username = (await this.userService.findById(paste.user)).username;
     return pasteAssembler(paste, username);
   }
