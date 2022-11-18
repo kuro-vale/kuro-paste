@@ -10,7 +10,7 @@ export class PasteService {
     @InjectModel(Paste.name) private pasteModel: Model<PasteDocument>,
   ) {}
 
-  async create(createPasteDto: CreatePasteDto, userId: string): Promise<Paste> {
+  async create(createPasteDto: CreatePasteDto, userId: string): Promise<any> {
     return await this.pasteModel.create({ user: userId, ...createPasteDto });
   }
 }

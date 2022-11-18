@@ -15,21 +15,28 @@ import { JwtGuard } from '../auth/guards/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileBinaryValidator } from './pipes/file-binary-validator.pipe';
 import { FileMetadataValidator } from './pipes/file-metadata-validator.pipe';
+import { UserService } from '../user/user.service';
+import { pasteAssembler } from './helpers/paste-assembler.helper';
 
 @Controller('pastes')
 export class PasteController {
-  constructor(private readonly pasteService: PasteService) {}
+  constructor(
+    private readonly pasteService: PasteService,
+    private readonly userService: UserService,
+  ) {}
 
   @UseGuards(JwtGuard)
   @Post('compose')
   async compose(@Request() req, @Body() createPasteDto: CreatePasteDto) {
-    return await this.pasteService.create(createPasteDto, req.user.id);
+    const paste = await this.pasteService.create(createPasteDto, req.user.id);
+    const username = (await this.userService.findById(paste.user)).username;
+    return pasteAssembler(paste, username);
   }
 
   @UseGuards(JwtGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async create(
+  async upload(
     @Request() req,
     @UploadedFile(
       new ParseFilePipe({
@@ -48,6 +55,8 @@ export class PasteController {
       extension: file.originalname.match(regex)[2],
       body: file.buffer.toString(),
     };
-    return await this.pasteService.create(createPasteDto, req.user.id);
+    const paste = await this.pasteService.create(createPasteDto, req.user.id);
+    const username = (await this.userService.findById(paste.user)).username;
+    return pasteAssembler(paste, username);
   }
 }

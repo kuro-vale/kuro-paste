@@ -19,8 +19,8 @@ export class AuthService {
     return null;
   }
 
-  async verifyActive(username: string): Promise<boolean> {
-    const user = await this.userService.findOne(username);
+  async verifyActive(id: string): Promise<boolean> {
+    const user = await this.userService.findById(id);
     return !!user;
   }
 

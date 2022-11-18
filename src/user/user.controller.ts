@@ -14,6 +14,8 @@ import { AuthUserDto } from './dto/auth-user.dto';
 import { LocalGuard } from '../auth/guards/local.guard';
 import { AuthService } from '../auth/auth.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
+import { UserResponseDto } from './dto/user-response.dto';
+import { userHateoas } from './helpers/user-hateoas.helper';
 
 @Controller('auth')
 export class UserController {
@@ -40,7 +42,11 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('profile')
   async getProfile(@Request() req) {
-    return req.user;
+    return new UserResponseDto(
+      req.user.id,
+      req.user.username,
+      userHateoas(req.user.id),
+    );
   }
 
   @UseGuards(JwtGuard)
