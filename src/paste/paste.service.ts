@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Paste, PasteDocument } from './schemas/paste.schema';
 import { Model } from 'mongoose';
@@ -10,11 +10,19 @@ export class PasteService {
     @InjectModel(Paste.name) private pasteModel: Model<PasteDocument>,
   ) {}
 
-  async create(createPasteDto: CreatePasteDto, userId: string): Promise<any> {
-    return await this.pasteModel.create({ user: userId, ...createPasteDto });
+  async create(
+    createPasteDto: CreatePasteDto,
+    userId: string,
+  ): Promise<PasteDocument> {
+    return await this.pasteModel.create({ userId: userId, ...createPasteDto });
   }
 
-  async findOne(id: string): Promise<any> {
-    return await this.pasteModel.findById(id).exec();
+  async findOne(id: string): Promise<PasteDocument> {
+    const paste = await this.pasteModel.findById(id).exec();
+    if (paste != null) {
+      return paste;
+    } else {
+      throw new NotFoundException(`Could not find paste with id ${id}`);
+    }
   }
 }

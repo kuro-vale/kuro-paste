@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { User } from '../../user/schemas/user.schema';
 import { HydratedDocument } from 'mongoose';
 
 export type PasteDocument = HydratedDocument<Paste>;
@@ -17,7 +16,7 @@ export class Paste {
   body: string;
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User;
+  userId: string;
 }
 
 export const PasteSchema = SchemaFactory.createForClass(Paste);

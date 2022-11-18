@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   MaxFileSizeValidator,
@@ -65,7 +66,7 @@ export class PasteController {
   @Get(':id')
   async getOne(@Param('id') id: string) {
     const paste = await this.pasteService.findOne(id);
-    const username = (await this.userService.findById(paste.user)).username;
+    const username = (await this.userService.findById(paste.userId)).username;
     return pasteAssembler(paste, username);
   }
 
@@ -77,13 +78,23 @@ export class PasteController {
     @Request() req,
   ) {
     const paste = await this.pasteService.findOne(id);
-    if (req.user.id != paste.user) {
+    if (req.user.id != paste.userId) {
       throw new ForbiddenException();
     }
     paste.filename = createPasteDto.filename;
     paste.extension = createPasteDto.extension;
     paste.body = createPasteDto.body;
-    paste.save();
+    await paste.save();
     return pasteAssembler(paste, req.user.username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Request() req) {
+    const paste = await this.pasteService.findOne(id);
+    if (req.user.id != paste.userId) {
+      throw new ForbiddenException();
+    }
+    paste.delete();
   }
 }
