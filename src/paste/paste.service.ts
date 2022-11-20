@@ -26,4 +26,8 @@ export class PasteService {
       throw new NotFoundException(`Could not find paste with id ${id}`);
     }
   }
+
+  async findAll(): Promise<PasteDocument[]> {
+    return await this.pasteModel.find().exec();
+  }
 }

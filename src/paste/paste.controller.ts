@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  HttpCode,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
@@ -22,6 +23,7 @@ import { FileBinaryValidator } from './pipes/file-binary-validator.pipe';
 import { FileMetadataValidator } from './pipes/file-metadata-validator.pipe';
 import { UserService } from '../user/user.service';
 import { pasteAssembler } from './helpers/paste-assembler.helper';
+import { PasteResponseDto } from './dto/paste-response.dto';
 
 @Controller('pastes')
 export class PasteController {
@@ -30,11 +32,22 @@ export class PasteController {
     private readonly userService: UserService,
   ) {}
 
+  @Get()
+  async index(@Request() req) {
+    const response: PasteResponseDto[] = [];
+    const pastes = await this.pasteService.findAll();
+    for (const i in pastes) {
+      const paste = pastes[i];
+      const username = (await this.userService.findById(paste.userId)).username;
+      response.push(pasteAssembler(paste, username, req.hostname));
+    }
+    return response;
+  }
+
   @UseGuards(JwtGuard)
   @Post('compose')
   async compose(@Request() req, @Body() createPasteDto: CreatePasteDto) {
     const paste = await this.pasteService.create(createPasteDto, req.user.id);
-    console.log(req.hostname);
     return pasteAssembler(paste, req.user.username, req.hostname);
   }
 
@@ -91,6 +104,7 @@ export class PasteController {
 
   @UseGuards(JwtGuard)
   @Delete(':id')
+  @HttpCode(204)
   async delete(@Param('id') id: string, @Request() req) {
     const paste = await this.pasteService.findOne(id);
     if (req.user.id != paste.userId) {
