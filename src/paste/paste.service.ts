@@ -18,10 +18,11 @@ export class PasteService {
   }
 
   async findOne(id: string): Promise<PasteDocument> {
-    const paste = await this.pasteModel.findById(id).exec();
-    if (paste != null) {
-      return paste;
-    } else {
+    try {
+      const paste = await this.pasteModel.findById(id)?.exec();
+      if (paste != null) return paste;
+      await Promise.reject(Error());
+    } catch (e) {
       throw new NotFoundException(`Could not find paste with id ${id}`);
     }
   }

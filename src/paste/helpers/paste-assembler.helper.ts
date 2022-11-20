@@ -1,17 +1,16 @@
 import { PasteResponseDto } from '../dto/paste-response.dto';
 import { UserResponseDto } from '../../user/dto/user-response.dto';
-import { userHateoas } from '../../user/helpers/user-hateoas.helper';
-import { pasteHateoas } from './paste-hateoas.helper';
 import { PasteDocument } from '../schemas/paste.schema';
 
 export function pasteAssembler(
   paste: PasteDocument,
   username: string,
+  host: string,
 ): PasteResponseDto {
   const created_by = new UserResponseDto(
     paste.userId,
     username,
-    userHateoas(paste.userId),
+    `${host}/users/${paste.userId}/pastes`,
   );
   return new PasteResponseDto(
     paste._id.toString(),
@@ -19,6 +18,6 @@ export function pasteAssembler(
     paste.extension,
     paste.body,
     created_by,
-    pasteHateoas(paste._id.toString()),
+    `${host}/pastes/${paste._id}`,
   );
 }

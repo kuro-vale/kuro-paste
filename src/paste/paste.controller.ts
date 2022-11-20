@@ -34,7 +34,8 @@ export class PasteController {
   @Post('compose')
   async compose(@Request() req, @Body() createPasteDto: CreatePasteDto) {
     const paste = await this.pasteService.create(createPasteDto, req.user.id);
-    return pasteAssembler(paste, req.user.username);
+    console.log(req.hostname);
+    return pasteAssembler(paste, req.user.username, req.hostname);
   }
 
   @UseGuards(JwtGuard)
@@ -60,14 +61,14 @@ export class PasteController {
       body: file.buffer.toString(),
     };
     const paste = await this.pasteService.create(createPasteDto, req.user.id);
-    return pasteAssembler(paste, req.user.username);
+    return pasteAssembler(paste, req.user.username, req.hostname);
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
+  async getOne(@Param('id') id: string, @Request() req) {
     const paste = await this.pasteService.findOne(id);
     const username = (await this.userService.findById(paste.userId)).username;
-    return pasteAssembler(paste, username);
+    return pasteAssembler(paste, username, req.hostname);
   }
 
   @UseGuards(JwtGuard)
@@ -85,7 +86,7 @@ export class PasteController {
     paste.extension = createPasteDto.extension;
     paste.body = createPasteDto.body;
     await paste.save();
-    return pasteAssembler(paste, req.user.username);
+    return pasteAssembler(paste, req.user.username, req.hostname);
   }
 
   @UseGuards(JwtGuard)
