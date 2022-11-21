@@ -12,5 +12,6 @@ import { UserModule } from '../user/user.module';
   ],
   controllers: [PasteController],
   providers: [PasteService],
+  exports: [PasteService],
 })
 export class PasteModule {}

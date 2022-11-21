@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PasteModule } from './paste/paste.module';
+import { StarModule } from './star/star.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PasteModule } from './paste/paste.module';
     UserModule,
     AuthModule,
     PasteModule,
+    StarModule,
   ],
   controllers: [AppController],
 })

@@ -9,7 +9,10 @@ export class Star {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Paste' })
   pasteId: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: [],
+  })
   userIds: string[];
 }
 
