@@ -37,22 +37,26 @@ export class PasteController {
 
   @Get()
   async index(@Request() req, @Query() queries) {
-    const items: PasteResponseDto[] = [];
     const args = [queries.body, queries.filename, queries.extension];
-    const pastes = await this.pasteService.findAllPaginated(
-      queries.page,
-      ...args,
-    );
-    const count = await this.pasteService.countPastes(...args);
-    for (const i in pastes) {
-      const paste = pastes[i];
-      const username = (await this.userService.findById(paste.userId)).username;
-      items.push(pasteAssembler(paste, username, req.hostname));
-    }
-    return new PaginatedPasteDto(
-      metadataGen(count, req.hostname, req.url, queries.page),
-      items,
-    );
+    return await this.#getIndex(args, queries.page, req.hostname, req.url);
+  }
+
+  @Get('user/:id')
+  async userPastes(@Request() req, @Query() queries, @Param('id') id) {
+    const args = [queries.body, queries.filename, queries.extension, id];
+    return await this.#getIndex(args, queries.page, req.hostname, req.url);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('me')
+  async myPastes(@Request() req, @Query() queries) {
+    const args = [
+      queries.body,
+      queries.filename,
+      queries.extension,
+      req.user.id,
+    ];
+    return await this.#getIndex(args, queries.page, req.hostname, req.url);
   }
 
   @UseGuards(JwtGuard)
@@ -122,5 +126,20 @@ export class PasteController {
       throw new ForbiddenException();
     }
     paste.delete();
+  }
+
+  async #getIndex(args, page, hostname, url) {
+    const items: PasteResponseDto[] = [];
+    const pastes = await this.pasteService.findAllPaginated(page, ...args);
+    const count = await this.pasteService.countPastes(...args);
+    for (const i in pastes) {
+      const paste = pastes[i];
+      const username = (await this.userService.findById(paste.userId)).username;
+      items.push(pasteAssembler(paste, username, hostname));
+    }
+    return new PaginatedPasteDto(
+      metadataGen(count, hostname, url, page),
+      items,
+    );
   }
 }

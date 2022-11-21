@@ -10,7 +10,7 @@ export function pasteAssembler(
   const created_by = new UserResponseDto(
     paste.userId,
     username,
-    `${host}/users/${paste.userId}/pastes`,
+    `${host}/pastes/user/${paste.userId}`,
   );
   return new PasteResponseDto(
     paste._id.toString(),

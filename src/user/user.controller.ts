@@ -44,7 +44,7 @@ export class UserController {
     return new UserResponseDto(
       req.user.id,
       req.user.username,
-      `${req.hostname}/users/${req.user.id}/pastes`,
+      `${req.hostname}/pastes/user/${req.user.id}`,
     );
   }
 
