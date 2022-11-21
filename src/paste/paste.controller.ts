@@ -25,6 +25,8 @@ import { FileMetadataValidator } from './pipes/file-metadata-validator.pipe';
 import { UserService } from '../user/user.service';
 import { pasteAssembler } from './helpers/paste-assembler.helper';
 import { PasteResponseDto } from './dto/paste-response.dto';
+import { PaginatedPasteDto } from './dto/paginated-paste.dto';
+import { metadataGen } from '../helpers/metadata-gen.helper';
 
 @Controller('pastes')
 export class PasteController {
@@ -35,19 +37,22 @@ export class PasteController {
 
   @Get()
   async index(@Request() req, @Query() queries) {
-    const response: PasteResponseDto[] = [];
+    const items: PasteResponseDto[] = [];
+    const args = [queries.body, queries.filename, queries.extension];
     const pastes = await this.pasteService.findAllPaginated(
       queries.page,
-      queries.body,
-      queries.filename,
-      queries.extension,
+      ...args,
     );
+    const count = await this.pasteService.countPastes(...args);
     for (const i in pastes) {
       const paste = pastes[i];
       const username = (await this.userService.findById(paste.userId)).username;
-      response.push(pasteAssembler(paste, username, req.hostname));
+      items.push(pasteAssembler(paste, username, req.hostname));
     }
-    return response;
+    return new PaginatedPasteDto(
+      metadataGen(count, req.hostname, req.url, queries.page),
+      items,
+    );
   }
 
   @UseGuards(JwtGuard)

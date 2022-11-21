@@ -32,23 +32,39 @@ export class PasteService {
     body = '',
     filename = '',
     extension = '',
-    userId = '',
+    userId = null,
   ): Promise<PasteDocument[]> {
     const pageLimit = 10;
+    const query = {
+      body: { $regex: '.*' + body + '.*', $options: 'i' },
+      filename: { $regex: '.*' + filename + '.*', $options: 'i' },
+      extension: { $regex: '.*' + extension + '.*', $options: 'i' },
+    };
+    if (userId != null) {
+      query['userId'] = userId;
+    }
     return await this.pasteModel
       .find()
       .skip((page - 1) * pageLimit)
       .limit(pageLimit)
-      .where({
-        body: { $regex: '.*' + body + '.*', $options: 'i' },
-        filename: { $regex: '.*' + filename + '.*', $options: 'i' },
-        extension: { $regex: '.*' + extension + '.*', $options: 'i' },
-        userId: userId,
-      })
+      .where(query)
       .exec();
   }
 
-  async countPastes(): Promise<number> {
-    return await this.pasteModel.find().count().exec();
+  async countPastes(
+    body = '',
+    filename = '',
+    extension = '',
+    userId = null,
+  ): Promise<number> {
+    const query = {
+      body: { $regex: '.*' + body + '.*', $options: 'i' },
+      filename: { $regex: '.*' + filename + '.*', $options: 'i' },
+      extension: { $regex: '.*' + extension + '.*', $options: 'i' },
+    };
+    if (userId != null) {
+      query['userId'] = userId;
+    }
+    return await this.pasteModel.find().where(query).count().exec();
   }
 }
