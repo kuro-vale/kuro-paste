@@ -27,7 +27,28 @@ export class PasteService {
     }
   }
 
-  async findAll(): Promise<PasteDocument[]> {
-    return await this.pasteModel.find().exec();
+  async findAllPaginated(
+    page = 1,
+    body = '',
+    filename = '',
+    extension = '',
+    userId = '',
+  ): Promise<PasteDocument[]> {
+    const pageLimit = 10;
+    return await this.pasteModel
+      .find()
+      .skip((page - 1) * pageLimit)
+      .limit(pageLimit)
+      .where({
+        body: { $regex: '.*' + body + '.*', $options: 'i' },
+        filename: { $regex: '.*' + filename + '.*', $options: 'i' },
+        extension: { $regex: '.*' + extension + '.*', $options: 'i' },
+        userId: userId,
+      })
+      .exec();
+  }
+
+  async countPastes(): Promise<number> {
+    return await this.pasteModel.find().count().exec();
   }
 }

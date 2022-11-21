@@ -10,6 +10,7 @@ import {
   ParseFilePipe,
   Post,
   Put,
+  Query,
   Request,
   UploadedFile,
   UseGuards,
@@ -33,9 +34,14 @@ export class PasteController {
   ) {}
 
   @Get()
-  async index(@Request() req) {
+  async index(@Request() req, @Query() queries) {
     const response: PasteResponseDto[] = [];
-    const pastes = await this.pasteService.findAll();
+    const pastes = await this.pasteService.findAllPaginated(
+      queries.page,
+      queries.body,
+      queries.filename,
+      queries.extension,
+    );
     for (const i in pastes) {
       const paste = pastes[i];
       const username = (await this.userService.findById(paste.userId)).username;
