@@ -17,6 +17,7 @@ export function pasteAssembler(
     paste.filename,
     paste.extension,
     paste.body,
+    paste.stars,
     created_by,
     `${host}/pastes/${paste._id}`,
   );
