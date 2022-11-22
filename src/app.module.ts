@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { PasteModule } from './paste/paste.module';
 import { StarModule } from './star/star.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -15,6 +17,9 @@ import { StarModule } from './star/star.module';
     AuthModule,
     PasteModule,
     StarModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
   ],
   controllers: [AppController],
 })
