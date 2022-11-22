@@ -10,6 +10,7 @@ import { Paste, PasteDocument } from './schemas/paste.schema';
 import { Model, Types } from 'mongoose';
 import { CreatePasteDto } from './dto/create-paste.dto';
 import { StarService } from '../star/star.service';
+import { getQuery } from './helpers/get-query-helper';
 
 @Injectable()
 export class PasteService {
@@ -50,7 +51,7 @@ export class PasteService {
     userId = null,
   ): Promise<PasteDocument[]> {
     const pageLimit = 10;
-    const query = this.#getQuery(body, filename, extension, userId);
+    const query = getQuery(body, filename, extension, userId);
     return await this.pasteModel
       .find()
       .skip((page - 1) * pageLimit)
@@ -65,21 +66,7 @@ export class PasteService {
     extension = '',
     userId = null,
   ): Promise<number> {
-    const query = this.#getQuery(body, filename, extension, userId);
+    const query = getQuery(body, filename, extension, userId);
     return await this.pasteModel.find().where(query).count().exec();
-  }
-
-  #getQuery(body = '', filename = '', extension = '', userId = null) {
-    const query = {
-      body: { $regex: '.*' + body + '.*', $options: 'i' },
-      filename: { $regex: '.*' + filename + '.*', $options: 'i' },
-      extension: { $regex: '.*' + extension + '.*', $options: 'i' },
-    };
-    if (userId != null) {
-      if (!Types.ObjectId.isValid(userId))
-        throw new BadRequestException(`${userId} is not a valid ID`);
-      query['userId'] = userId;
-    }
-    return query;
   }
 }
