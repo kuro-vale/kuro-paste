@@ -5,6 +5,8 @@ import {
   Request,
   Param,
   BadRequestException,
+  Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { StarService } from './star.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
@@ -30,5 +32,22 @@ export class StarController {
       return;
     }
     throw new BadRequestException('You already give a star to this paste');
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':id')
+  @HttpCode(204)
+  async removeStar(@Request() req, @Param('id') id: string) {
+    const paste = await this.pasteService.findOne(id);
+    const star = await this.starService.create(paste.id);
+    if (star != null && star.userIds.includes(req.user.id)) {
+      const index = star.userIds.indexOf(req.user.id);
+      star.userIds.splice(index, 1);
+      paste.stars -= 1;
+      await paste.save();
+      await star.save();
+      return;
+    }
+    throw new BadRequestException("You haven't give a star to this paste yet");
   }
 }
