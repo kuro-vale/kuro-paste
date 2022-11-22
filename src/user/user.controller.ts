@@ -14,7 +14,7 @@ import { AuthUserDto } from './dto/auth-user.dto';
 import { LocalGuard } from '../auth/guards/local.guard';
 import { AuthService } from '../auth/auth.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
-import { UserResponseDto } from './dto/user-response.dto';
+import { userAssembler } from './helpers/user-assembler.helper';
 
 @Controller('auth')
 export class UserController {
@@ -41,11 +41,7 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('profile')
   async getProfile(@Request() req) {
-    return new UserResponseDto(
-      req.user.id,
-      req.user.username,
-      `${req.hostname}/pastes/user/${req.user.id}`,
-    );
+    return userAssembler(req.user.id, req.user.username, req.hostname);
   }
 
   @UseGuards(JwtGuard)
