@@ -1,13 +1,26 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { PasteService } from '../paste/paste.service';
+import { StarService } from '../star/star.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Inject(forwardRef(() => PasteService))
+    private readonly pasteService: PasteService,
+    private readonly starService: StarService,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const salt = await bcrypt.genSalt();
@@ -27,7 +40,9 @@ export class UserService {
     return await this.userModel.findById(id).exec();
   }
 
-  async delete(username: string) {
-    await this.userModel.deleteOne({ username: username }).exec();
+  async delete(id: string) {
+    await this.pasteService.deleteUserPastes(id);
+    await this.starService.removeUserStars(id);
+    await this.userModel.deleteOne({ _id: id }).exec();
   }
 }

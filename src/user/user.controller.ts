@@ -48,6 +48,6 @@ export class UserController {
   @Delete()
   @HttpCode(204)
   async deleteUser(@Request() req) {
-    await this.userService.delete(req.user.username);
+    await this.userService.delete(req.user.id);
   }
 }

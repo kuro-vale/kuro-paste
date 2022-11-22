@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,11 +9,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Paste, PasteDocument } from './schemas/paste.schema';
 import { Model, Types } from 'mongoose';
 import { CreatePasteDto } from './dto/create-paste.dto';
+import { StarService } from '../star/star.service';
 
 @Injectable()
 export class PasteService {
   constructor(
     @InjectModel(Paste.name) private pasteModel: Model<PasteDocument>,
+    @Inject(forwardRef(() => StarService))
+    private readonly starService: StarService,
   ) {}
 
   async create(
@@ -19,6 +24,14 @@ export class PasteService {
     userId: string,
   ): Promise<PasteDocument> {
     return await this.pasteModel.create({ userId: userId, ...createPasteDto });
+  }
+
+  async deleteUserPastes(userId: string) {
+    const pastes = await this.pasteModel.find({ userId: userId });
+    for (const i in pastes) {
+      await this.starService.delete(pastes[i].id);
+      pastes[i].delete();
+    }
   }
 
   async findOne(id: string): Promise<PasteDocument> {
