@@ -11,6 +11,7 @@ RUN npm ci --only=production && npm cache clean --force
 FROM node:18-alpine
 EXPOSE 3000
 
+COPY public public
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 
