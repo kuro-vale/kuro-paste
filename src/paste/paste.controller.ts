@@ -27,12 +27,14 @@ import { pasteAssembler } from './helpers/paste-assembler.helper';
 import { PasteResponseDto } from './dto/paste-response.dto';
 import { PaginatedPasteDto } from './dto/paginated-paste.dto';
 import { metadataGen } from '../helpers/metadata-gen.helper';
+import { StarService } from '../star/star.service';
 
 @Controller('pastes')
 export class PasteController {
   constructor(
     private readonly pasteService: PasteService,
     private readonly userService: UserService,
+    private readonly starService: StarService,
   ) {}
 
   @Get()
@@ -125,7 +127,8 @@ export class PasteController {
     if (req.user.id != paste.userId) {
       throw new ForbiddenException();
     }
-    paste.delete();
+    await this.starService.delete(paste.id);
+    await paste.delete();
   }
 
   async #getIndex(args, page, hostname, url) {
