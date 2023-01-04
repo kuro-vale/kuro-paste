@@ -1,5 +1,7 @@
 # kuro-paste
 
+[![PWD](https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png)](https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/kuro-vale/kuro-paste/main/docker-compose.yml)
+
 API project made with NestJS.
 
 The thematic of this API is PasteBin.
